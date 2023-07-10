@@ -9,11 +9,13 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+import TogglTrack from './toggl-track';
 
 class AppUpdater {
   constructor() {
@@ -24,11 +26,28 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+const togglTrack = new TogglTrack();
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
+});
+
+ipcMain.on('toggl', async (event, args) => {
+  switch (args[0]) {
+    case 'checkAuth':
+      event.reply('toggl', togglTrack.authenticated);
+      break;
+    case 'startSession':
+      event.reply('toggl', await togglTrack.startSession(args[1]));
+      break;
+    case 'getCurrentTimeEntry':
+      event.reply('toggl', await togglTrack.getCurrentTimeEntry());
+      break;
+    default:
+      console.error('Unknown toggl command');
+  }
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -122,6 +141,38 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+let okayToQuit = false;
+
+app.on('before-quit', async (event) => {
+  if (okayToQuit) {
+    return true;
+  }
+  // Don't quit yet, we need to destroy the Toggl session first
+  event.preventDefault();
+
+  return togglTrack
+    .destroySession()
+    .then((res) => {
+      if (res === true) {
+        console.log('Toggl session destroyed');
+        // Now quit
+        okayToQuit = true;
+        app.quit();
+      } else {
+        console.log("Toggl session wasn't destroyed as there is no session");
+        okayToQuit = true;
+        app.quit();
+      }
+    })
+    .catch((e) => {
+      console.error('Error destroying Toggl session', e);
+      // Show the error in a dialog box
+      dialog.showErrorBox('Error destroying API session', 'error');
+      okayToQuit = true;
+      app.quit();
+    });
 });
 
 app

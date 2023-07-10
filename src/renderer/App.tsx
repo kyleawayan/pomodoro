@@ -1,40 +1,66 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
 import './App.css';
+import { FormEvent, useEffect, useState } from 'react';
+
+function ApiKeyInput({ onSubmit }: { onSubmit: (apiKey: string) => void }) {
+  const [apiKeyInput, setApiKeyInput] = useState('');
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    onSubmit(apiKeyInput);
+  };
+
+  return (
+    <form>
+      <input
+        type="text"
+        value={apiKeyInput}
+        onChange={(e) => setApiKeyInput(e.target.value)}
+      />
+      <button type="submit" onClick={handleSubmit}>
+        Submit
+      </button>
+    </form>
+  );
+}
 
 function Hello() {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const removeListener = window.electron.ipcRenderer.on('toggl', (arg) => {
+      console.log(arg);
+      if (arg === true) {
+        setAuthenticated(true);
+      }
+    });
+    // Check if autnenticated at initial load
+    window.electron.ipcRenderer.sendMessage('toggl', ['checkAuth']);
+
+    return removeListener;
+  }, []);
+
+  const handleLogin = (apiKey: string) => {
+    window.electron.ipcRenderer.sendMessage('toggl', ['startSession', apiKey]);
+  };
+
+  const getCurrentTimeEntry = () => {
+    window.electron.ipcRenderer.sendMessage('toggl', ['getCurrentTimeEntry']);
+  };
+
   return (
     <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+      {authenticated ? (
+        <div>
+          <h1>Authenticated</h1>
+          <button onClick={getCurrentTimeEntry}>Get current time entry</button>
+        </div>
+      ) : (
+        <div>
+          <h1>Not authenticated</h1>
+          <ApiKeyInput onSubmit={handleLogin} />
+        </div>
+      )}
     </div>
   );
 }

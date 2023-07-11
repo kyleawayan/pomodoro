@@ -36,8 +36,6 @@ const pomodoro = new Pomodoro(async () => {
   return new Date(timeEntry.start);
 });
 
-pomodoro.startWatchingFunction();
-
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -144,6 +142,13 @@ const createWindow = async () => {
 /**
  * Add event listeners...
  */
+pomodoro.startWatchingFunction((pomodoroInfo) => {
+  if (mainWindow === null) {
+    return;
+  }
+
+  mainWindow.webContents.send('pomodoro', pomodoroInfo);
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even

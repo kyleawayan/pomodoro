@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function ApiKeyInput({ onSubmit }: { onSubmit: (apiKey: string) => void }) {
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -25,12 +25,13 @@ function ApiKeyInput({ onSubmit }: { onSubmit: (apiKey: string) => void }) {
 
 export default function Login() {
   const [authenticated, setAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const removeListener = window.electron.ipcRenderer.on('toggl', (arg) => {
       if (arg === true) {
         setAuthenticated(true);
-        redirect('/timer');
+        navigate('/timer');
       }
     });
     // Check if autnenticated at initial load

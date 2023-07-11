@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PomodoroInfo } from 'main/pomodoro';
+import restSoundFile from '../../assets/sounds/rest.ogg';
+import focusSoundFile from '../../assets/sounds/focus.ogg';
 
 const eventTypeToFriendlyName = {
   pomodoro: 'Work',
@@ -7,6 +9,9 @@ const eventTypeToFriendlyName = {
   longBreak: 'Long Break',
   idle: 'Not running',
 };
+
+const restSound = new Audio(restSoundFile);
+const focusSound = new Audio(focusSoundFile);
 
 export default function Timer() {
   const [pomodroInfo, setPomodoroInfo] = useState<PomodoroInfo | null>(null);
@@ -18,6 +23,27 @@ export default function Timer() {
 
     return removeListener;
   });
+
+  useEffect(() => {
+    if (!pomodroInfo) {
+      return;
+    }
+
+    switch (pomodroInfo.currentEvent.type) {
+      case 'pomodoro':
+        focusSound.play();
+        break;
+      case 'shortBreak':
+        restSound.play();
+        break;
+      case 'longBreak':
+        restSound.play();
+        break;
+      default:
+        break;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pomodroInfo?.currentEvent.type]);
 
   if (!pomodroInfo) {
     return <div>Loading...</div>;

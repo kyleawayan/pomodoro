@@ -11,6 +11,15 @@ export type PomodoroInfo = {
   pomodoroCount: number;
 };
 
+const defaultPomodoroInfo: PomodoroInfo = {
+  currentEvent: {
+    type: 'idle',
+    endTime: new Date(),
+  },
+  nextLongBreak: new Date(),
+  pomodoroCount: 0,
+};
+
 /**
  * This pomodoro class takes in a function that returns the start time of the whole pomodoro session.
  * This is meant to be used with the Toggl Track API, which when a user is running a timer,
@@ -30,14 +39,7 @@ export default class Pomodoro {
   constructor(functionToGetStartTime: () => Promise<Date | null>) {
     this.functionToGetStartTime = functionToGetStartTime;
 
-    this.info = {
-      currentEvent: {
-        type: 'idle',
-        endTime: new Date(),
-      },
-      nextLongBreak: new Date(),
-      pomodoroCount: 0,
-    };
+    this.info = defaultPomodoroInfo;
   }
 
   calculatePomodoro(startTime: Date) {
@@ -133,9 +135,10 @@ export default class Pomodoro {
       this.functionToGetStartTime()
         .then((startTime) => {
           if (!startTime) {
-            return;
+            this.info = defaultPomodoroInfo;
+          } else {
+            this.calculatePomodoro(startTime);
           }
-          this.calculatePomodoro(startTime);
           if (callback) {
             setImmediate(() => callback(this.info));
           }

@@ -69,25 +69,68 @@ export default class Pomodoro {
     if (currentCyclePositionSeconds < pomodoroDurationSeconds) {
       currentEventType = 'pomodoro';
       currentEventEndTime = new Date(
-        startTime.getTime() + pomodoroDurationSeconds * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds - currentCyclePositionSeconds) * 1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds + shortBreakDurationSeconds
+    ) {
+      currentEventType = 'shortBreak';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds +
+            shortBreakDurationSeconds -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
       pomodoroDurationSeconds * 2 + shortBreakDurationSeconds
     ) {
+      currentEventType = 'pomodoro';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 2 +
+            shortBreakDurationSeconds -
+            currentCyclePositionSeconds) *
+            1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds * 2 + shortBreakDurationSeconds * 2
+    ) {
       currentEventType = 'shortBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 2 + shortBreakDurationSeconds) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 2 +
+            shortBreakDurationSeconds * 2 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
       pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 2
     ) {
+      currentEventType = 'pomodoro';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 3 +
+            shortBreakDurationSeconds * 2 -
+            currentCyclePositionSeconds) *
+            1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 3
+    ) {
       currentEventType = 'shortBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 2) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 3 +
+            shortBreakDurationSeconds * 3 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
@@ -95,19 +138,26 @@ export default class Pomodoro {
     ) {
       currentEventType = 'pomodoro';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 4 + shortBreakDurationSeconds * 3) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 4 +
+            shortBreakDurationSeconds * 3 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else {
       currentEventType = 'longBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() + fullCycleDurationSeconds * 1000
+        currentTime.getTime() +
+          (fullCycleDurationSeconds - currentCyclePositionSeconds) * 1000
       );
     }
 
     // calculate the number of completed pomodoros
     const completedPomodoros =
-      Math.floor(secondsSinceStart / fullCycleDurationSeconds) * 4;
+      Math.floor(
+        secondsSinceStart /
+          (pomodoroDurationSeconds + shortBreakDurationSeconds)
+      ) + 1;
 
     // calculate the time for the next long break
     const nextLongBreakStartTime = new Date(

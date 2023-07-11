@@ -11,6 +11,15 @@ export type PomodoroInfo = {
   pomodoroCount: number;
 };
 
+const defaultPomodoroInfo: PomodoroInfo = {
+  currentEvent: {
+    type: 'idle',
+    endTime: new Date(),
+  },
+  nextLongBreak: new Date(),
+  pomodoroCount: 0,
+};
+
 /**
  * This pomodoro class takes in a function that returns the start time of the whole pomodoro session.
  * This is meant to be used with the Toggl Track API, which when a user is running a timer,
@@ -30,17 +39,10 @@ export default class Pomodoro {
   constructor(functionToGetStartTime: () => Promise<Date | null>) {
     this.functionToGetStartTime = functionToGetStartTime;
 
-    this.info = {
-      currentEvent: {
-        type: 'idle',
-        endTime: new Date(),
-      },
-      nextLongBreak: new Date(),
-      pomodoroCount: 0,
-    };
+    this.info = defaultPomodoroInfo;
   }
 
-  calculatePomodoro(startTime: Date) {
+  calculatePomodoro(startTime: Date, currentTime: Date = new Date()) {
     // convert durations to seconds
     const pomodoroDurationSeconds = 25 * 60;
     const shortBreakDurationSeconds = 5 * 60;
@@ -48,7 +50,7 @@ export default class Pomodoro {
 
     // calculate the duration in seconds since the start time
     const secondsSinceStart = Math.floor(
-      (new Date().getTime() - startTime.getTime()) / 1000
+      (currentTime.getTime() - startTime.getTime()) / 1000
     );
 
     // calculate the total duration of one full cycle (4 pomodoros, 3 short breaks, and 1 long break)
@@ -67,25 +69,68 @@ export default class Pomodoro {
     if (currentCyclePositionSeconds < pomodoroDurationSeconds) {
       currentEventType = 'pomodoro';
       currentEventEndTime = new Date(
-        startTime.getTime() + pomodoroDurationSeconds * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds - currentCyclePositionSeconds) * 1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds + shortBreakDurationSeconds
+    ) {
+      currentEventType = 'shortBreak';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds +
+            shortBreakDurationSeconds -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
       pomodoroDurationSeconds * 2 + shortBreakDurationSeconds
     ) {
+      currentEventType = 'pomodoro';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 2 +
+            shortBreakDurationSeconds -
+            currentCyclePositionSeconds) *
+            1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds * 2 + shortBreakDurationSeconds * 2
+    ) {
       currentEventType = 'shortBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 2 + shortBreakDurationSeconds) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 2 +
+            shortBreakDurationSeconds * 2 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
       pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 2
     ) {
+      currentEventType = 'pomodoro';
+      currentEventEndTime = new Date(
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 3 +
+            shortBreakDurationSeconds * 2 -
+            currentCyclePositionSeconds) *
+            1000
+      );
+    } else if (
+      currentCyclePositionSeconds <
+      pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 3
+    ) {
       currentEventType = 'shortBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 3 + shortBreakDurationSeconds * 2) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 3 +
+            shortBreakDurationSeconds * 3 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else if (
       currentCyclePositionSeconds <
@@ -93,26 +138,53 @@ export default class Pomodoro {
     ) {
       currentEventType = 'pomodoro';
       currentEventEndTime = new Date(
-        startTime.getTime() +
-          (pomodoroDurationSeconds * 4 + shortBreakDurationSeconds * 3) * 1000
+        currentTime.getTime() +
+          (pomodoroDurationSeconds * 4 +
+            shortBreakDurationSeconds * 3 -
+            currentCyclePositionSeconds) *
+            1000
       );
     } else {
       currentEventType = 'longBreak';
       currentEventEndTime = new Date(
-        startTime.getTime() + fullCycleDurationSeconds * 1000
+        currentTime.getTime() +
+          (fullCycleDurationSeconds - currentCyclePositionSeconds) * 1000
       );
     }
 
     // calculate the number of completed pomodoros
     const completedPomodoros =
-      Math.floor(secondsSinceStart / fullCycleDurationSeconds) * 4;
+      Math.floor(
+        secondsSinceStart /
+          (pomodoroDurationSeconds + shortBreakDurationSeconds)
+      ) +
+      1 -
+      // Subtract as long breaks are not counted as pomodoros
+      // Not sure if it will go wrong for extremely long pomodoro sessions
+      // TODO: Test for extremely long pomodoro sessions
+      Math.floor(secondsSinceStart / fullCycleDurationSeconds);
+
+    const cycleDurationWithoutLongBreakSeconds =
+      4 * pomodoroDurationSeconds + 3 * shortBreakDurationSeconds;
+
+    const completedCycles = Math.floor(
+      secondsSinceStart / fullCycleDurationSeconds
+    );
+
+    let inProgressOrCompletedCycles = completedCycles;
+
+    // if we are in the middle of a cycle
+    if (secondsSinceStart % fullCycleDurationSeconds !== 0) {
+      inProgressOrCompletedCycles += 1;
+    }
 
     // calculate the time for the next long break
     const nextLongBreakStartTime = new Date(
       startTime.getTime() +
-        Math.ceil(secondsSinceStart / fullCycleDurationSeconds) *
-          fullCycleDurationSeconds *
-          1000
+        inProgressOrCompletedCycles *
+          cycleDurationWithoutLongBreakSeconds *
+          1000 +
+        completedCycles * longBreakDurationSeconds * 1000
     );
 
     // update the info object
@@ -124,8 +196,6 @@ export default class Pomodoro {
       nextLongBreak: nextLongBreakStartTime,
       pomodoroCount: completedPomodoros,
     };
-
-    console.log(this.info);
   }
 
   startWatchingFunction(callback?: (info: PomodoroInfo) => void) {
@@ -133,9 +203,10 @@ export default class Pomodoro {
       this.functionToGetStartTime()
         .then((startTime) => {
           if (!startTime) {
-            return;
+            this.info = defaultPomodoroInfo;
+          } else {
+            this.calculatePomodoro(startTime);
           }
-          this.calculatePomodoro(startTime);
           if (callback) {
             setImmediate(() => callback(this.info));
           }

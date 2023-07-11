@@ -26,6 +26,19 @@ describe('Pomodoro class', () => {
       expect(res.pomodoroCount).toEqual(1);
     });
 
+    it("correctly calculates the next long break's start time", () => {
+      // Long break session starts at 9:55PM
+      // Test 8:10PM
+      const res = getPomodoroResults(
+        startTime,
+        new Date(2023, 7, 11, 20, 10, 0)
+      );
+
+      expect(res.nextLongBreak).toEqual(
+        new Date(2023, 7, 11, 21, 55, 0) // Should start at 9:55PM
+      );
+    });
+
     it('correctly recognizes first short break interval', () => {
       // Short break session starts at 8:25PM and ends at 8:30PM
       // Test 8:27PM
@@ -114,6 +127,19 @@ describe('Pomodoro class', () => {
         new Date(2023, 7, 11, 22, 45, 0) // Should end at 10:45PM
       );
       expect(res.pomodoroCount).toEqual(5);
+    });
+
+    it("correctly calculates the second next long break's start time", () => {
+      // Next long break session starts at 12:10AM
+      // Test 10:42PM
+      const res = getPomodoroResults(
+        startTime,
+        new Date(2023, 7, 11, 22, 42, 0)
+      );
+
+      expect(res.nextLongBreak).toEqual(
+        new Date(2023, 7, 12, 0, 10, 0) // Should start at 12:10AM
+      );
     });
   });
 });

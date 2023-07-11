@@ -157,7 +157,12 @@ export default class Pomodoro {
       Math.floor(
         secondsSinceStart /
           (pomodoroDurationSeconds + shortBreakDurationSeconds)
-      ) + 1;
+      ) +
+      1 -
+      // Subtract as long breaks are not counted as pomodoros
+      // Not sure if it will go wrong for extremely long pomodoro sessions
+      // TODO: Test for extremely long pomodoro sessions
+      Math.floor(secondsSinceStart / fullCycleDurationSeconds);
 
     // calculate the time for the next long break
     const nextLongBreakStartTime = new Date(

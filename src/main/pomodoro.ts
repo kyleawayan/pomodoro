@@ -2,7 +2,7 @@
 
 type PomodoroEvent = 'pomodoro' | 'shortBreak' | 'longBreak' | 'idle';
 
-type PomodoroInfo = {
+export type PomodoroInfo = {
   currentEvent: {
     type: PomodoroEvent;
     endTime: Date;

@@ -126,8 +126,6 @@ export default class Pomodoro {
       nextLongBreak: nextLongBreakStartTime,
       pomodoroCount: completedPomodoros,
     };
-
-    console.log(this.info);
   }
 
   startWatchingFunction(callback?: (info: PomodoroInfo) => void) {

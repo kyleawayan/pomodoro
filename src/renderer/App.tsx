@@ -6,6 +6,7 @@ import Timer from './Timer';
 export default function App() {
   return (
     <Router>
+      <div className="draggable" />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/timer" element={<Timer />} />

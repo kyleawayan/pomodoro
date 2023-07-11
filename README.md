@@ -1,6 +1,6 @@
 # pomodoro
 A Pomodoro timer that utilizes [Toggl Track](https://toggl.com/track/).
-<img width="1136" alt="Screenshot 2023-07-10 at 10 31 13 PM" src="https://github.com/kyleawayan/pomodoro/assets/56655579/fcf37e49-bd95-4c06-9d1b-fa3067c231ea">
+<img width="1136" alt="Screenshot" src="./screenshot.png">
 
 ## Why not use the Pomodoro feature in Toggl Track?
 While the feature is excellent, there are occasions when I am unable to fully utilize the app on my current device. I could use the iPhone app, but due to its limitations, I would need to keep the app open continuously for it to automatically switch Pomodoro intervals, which would waste my phone's resources. Furthermore, the Pomodoro timer on Toggl Track does not support long breaks.

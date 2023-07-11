@@ -38,7 +38,7 @@ export default function Login() {
     window.electron.ipcRenderer.sendMessage('toggl', ['checkAuth']);
 
     return removeListener;
-  }, []);
+  }, [navigate]);
 
   const handleLogin = (apiKey: string) => {
     window.electron.ipcRenderer.sendMessage('toggl', ['startSession', apiKey]);

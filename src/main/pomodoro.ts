@@ -23,7 +23,7 @@ export type PomodoroInfo = {
 export default class Pomodoro {
   functionToGetStartTime: () => Promise<Date | null>;
 
-  interval: NodeJS.Timer | null = null;
+  interval: ReturnType<typeof setInterval> | null = null;
 
   info: PomodoroInfo;
 

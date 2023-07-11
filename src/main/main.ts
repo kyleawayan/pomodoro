@@ -16,6 +16,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 import TogglTrack from './toggl-track';
+import Pomodoro from './pomodoro';
 
 class AppUpdater {
   constructor() {
@@ -27,6 +28,15 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 const togglTrack = new TogglTrack();
+const pomodoro = new Pomodoro(async () => {
+  const timeEntry = await togglTrack.getCurrentTimeEntry();
+  if (!timeEntry) {
+    return null;
+  }
+  return new Date(timeEntry.start);
+});
+
+pomodoro.startWatchingFunction();
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;

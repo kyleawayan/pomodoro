@@ -15,6 +15,7 @@ function ApiKeyInput({ onSubmit }: { onSubmit: (apiKey: string) => void }) {
         type="text"
         value={apiKeyInput}
         onChange={(e) => setApiKeyInput(e.target.value)}
+        className="border border-gray-400 bg-transparent p-2 block mb-2"
       />
       <button type="submit" onClick={handleSubmit}>
         Submit
@@ -45,10 +46,10 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <div className="flex justify-center items-center h-screen">
       {!authenticated && (
         <div>
-          <h1>Not authenticated</h1>
+          <h1 className="text-2xl mb-2">Not authenticated</h1>
           <ApiKeyInput onSubmit={handleLogin} />
         </div>
       )}

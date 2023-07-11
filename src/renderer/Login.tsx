@@ -11,12 +11,16 @@ function ApiKeyInput({ onSubmit }: { onSubmit: (apiKey: string) => void }) {
 
   return (
     <form>
-      <input
-        type="text"
-        value={apiKeyInput}
-        onChange={(e) => setApiKeyInput(e.target.value)}
-        className="border border-gray-400 bg-transparent p-2 block mb-2"
-      />
+      <label htmlFor="toggl-track-api-key">
+        Toggl Track API Key
+        <input
+          type="text"
+          value={apiKeyInput}
+          onChange={(e) => setApiKeyInput(e.target.value)}
+          className="border border-gray-400 bg-transparent p-2 block mb-2"
+          id="toggl-track-api-key"
+        />
+      </label>
       <button type="submit" onClick={handleSubmit}>
         Submit
       </button>

@@ -9,6 +9,14 @@ module.exports = {
         sky: colors.sky,
         cyan: colors.cyan,
       },
+      fontFamily: {
+        sans: [
+          'InterVar',
+          {
+            fontVariationSettings: '"opsz" 32',
+          },
+        ],
+      },
     },
   },
   variants: {

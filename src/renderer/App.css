@@ -2,6 +2,30 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
+@font-face {
+  font-family: "InterVar";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("../../assets/fonts/InterVariable.woff2?v=4.0") format("woff2-variations"),
+       url("../../assets/fonts/InterVariable.woff2?v=4.0") format("woff2");
+  src: url("../../assets/fonts/InterVariable.woff2?v=4.0") format("woff2") tech("variations");
+}
+@font-face {
+  font-family: "InterVar";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: italic;
+  src: url("../../assets/fonts/InterVariable-Italic.woff2?v=4.0") format("woff2-variations"),
+       url("../../assets/fonts/InterVariable-Italic.woff2?v=4.0") format("woff2");
+  src: url("../../assets/fonts/InterVariable-Italic.woff2?v=4.0") format("woff2") tech("variations");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  background-color: black;
+  color: white
+}

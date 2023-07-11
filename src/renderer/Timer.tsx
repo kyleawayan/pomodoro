@@ -70,6 +70,14 @@ export default function Timer() {
     }
   );
 
+  const nextLongBreakTimeString = pomodroInfo.nextLongBreak.toLocaleTimeString(
+    'en-US',
+    {
+      hour: 'numeric',
+      minute: 'numeric',
+    }
+  );
+
   const currentEvent = eventTypeToFriendlyName[pomodroInfo.currentEvent.type];
 
   return (
@@ -78,8 +86,13 @@ export default function Timer() {
         <div className="font-lcd text-9xl absolute text-gray-900">88</div>
         <div className="font-lcd text-9xl absolute">{minutes}</div>
       </div>
-      <div className="text-3xl">{currentEvent}</div>
-      <div>until {endTimeString}</div>
+      <div className="mb-4">
+        <div className="text-3xl">{currentEvent}</div>
+        <div>until {endTimeString}</div>
+      </div>
+      <div className="text-xl">
+        Next long break time is at {nextLongBreakTimeString}
+      </div>
     </div>
   );
 }

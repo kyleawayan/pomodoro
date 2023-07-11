@@ -16,6 +16,7 @@ module.exports = {
             fontVariationSettings: '"opsz" 32',
           },
         ],
+        lcd: ['DSEG7-Modern'],
       },
     },
   },

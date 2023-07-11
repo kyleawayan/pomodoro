@@ -21,6 +21,18 @@
   src: url("../../assets/fonts/InterVariable-Italic.woff2?v=4.0") format("woff2") tech("variations");
 }
 
+@font-face {
+  font-family: "DSEG7-Modern";
+  src: url("../../assets/fonts/DSEG7Modern-Italic.woff2") format("woff2");
+  font-weight: 400
+}
+
+@font-face {
+  font-family: "DSEG7-Modern";
+  src: url("../../assets/fonts/DSEG7Modern-BoldItalic.woff2") format("woff2");
+  font-weight: 700
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

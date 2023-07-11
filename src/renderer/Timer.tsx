@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { PomodoroInfo } from 'main/pomodoro';
 
+const eventTypeToFriendlyName = {
+  pomodoro: 'Work',
+  shortBreak: 'Short Break',
+  longBreak: 'Long Break',
+  idle: 'Not running',
+};
+
 export default function Timer() {
   const [pomodroInfo, setPomodoroInfo] = useState<PomodoroInfo | null>(null);
 
@@ -12,9 +19,41 @@ export default function Timer() {
     return removeListener;
   });
 
-  return pomodroInfo ? (
-    <div>{JSON.stringify(pomodroInfo)}</div>
-  ) : (
-    <div>Loading...</div>
+  if (!pomodroInfo) {
+    return <div>Loading...</div>;
+  }
+
+  const idle = pomodroInfo.currentEvent.type === 'idle';
+
+  // Get minutes until next event
+  // Pad zeros and make it so below one minute is 01
+  // Also if were idle, show "id"
+  const minutes = idle
+    ? 'id'
+    : Math.ceil(
+        (pomodroInfo.currentEvent.endTime.valueOf() - Date.now()) / 1000 / 60
+      )
+        .toString()
+        .padStart(2, '0');
+
+  const endTimeString = pomodroInfo.currentEvent.endTime.toLocaleTimeString(
+    'en-US',
+    {
+      hour: 'numeric',
+      minute: 'numeric',
+    }
+  );
+
+  const currentEvent = eventTypeToFriendlyName[pomodroInfo.currentEvent.type];
+
+  return (
+    <div className="absolute bottom-0 m-24">
+      <div className="relative mb-8 h-[128px] w-[209px]">
+        <div className="font-lcd text-9xl absolute text-gray-900">88</div>
+        <div className="font-lcd text-9xl absolute">{minutes}</div>
+      </div>
+      <div className="text-3xl">{currentEvent}</div>
+      <div>until {endTimeString}</div>
+    </div>
   );
 }

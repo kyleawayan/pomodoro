@@ -42,7 +42,7 @@ export default class Pomodoro {
     this.info = defaultPomodoroInfo;
   }
 
-  calculatePomodoro(startTime: Date) {
+  calculatePomodoro(startTime: Date, currentTime: Date = new Date()) {
     // convert durations to seconds
     const pomodoroDurationSeconds = 25 * 60;
     const shortBreakDurationSeconds = 5 * 60;
@@ -50,7 +50,7 @@ export default class Pomodoro {
 
     // calculate the duration in seconds since the start time
     const secondsSinceStart = Math.floor(
-      (new Date().getTime() - startTime.getTime()) / 1000
+      (currentTime.getTime() - startTime.getTime()) / 1000
     );
 
     // calculate the total duration of one full cycle (4 pomodoros, 3 short breaks, and 1 long break)

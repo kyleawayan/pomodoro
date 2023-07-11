@@ -164,12 +164,27 @@ export default class Pomodoro {
       // TODO: Test for extremely long pomodoro sessions
       Math.floor(secondsSinceStart / fullCycleDurationSeconds);
 
+    const cycleDurationWithoutLongBreakSeconds =
+      4 * pomodoroDurationSeconds + 3 * shortBreakDurationSeconds;
+
+    const completedCycles = Math.floor(
+      secondsSinceStart / fullCycleDurationSeconds
+    );
+
+    let inProgressOrCompletedCycles = completedCycles;
+
+    // if we are in the middle of a cycle
+    if (secondsSinceStart % fullCycleDurationSeconds !== 0) {
+      inProgressOrCompletedCycles += 1;
+    }
+
     // calculate the time for the next long break
     const nextLongBreakStartTime = new Date(
       startTime.getTime() +
-        Math.ceil(secondsSinceStart / fullCycleDurationSeconds) *
-          fullCycleDurationSeconds *
-          1000
+        inProgressOrCompletedCycles *
+          cycleDurationWithoutLongBreakSeconds *
+          1000 +
+        completedCycles * longBreakDurationSeconds * 1000
     );
 
     // update the info object

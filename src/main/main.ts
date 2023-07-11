@@ -16,6 +16,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 import TogglTrack from './toggl-track';
+import Pomodoro from './pomodoro';
 
 class AppUpdater {
   constructor() {
@@ -27,6 +28,13 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 const togglTrack = new TogglTrack();
+const pomodoro = new Pomodoro(async () => {
+  const timeEntry = await togglTrack.getCurrentTimeEntry();
+  if (!timeEntry) {
+    return null;
+  }
+  return new Date(timeEntry.start);
+});
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -134,6 +142,13 @@ const createWindow = async () => {
 /**
  * Add event listeners...
  */
+pomodoro.startWatchingFunction((pomodoroInfo) => {
+  if (mainWindow === null) {
+    return;
+  }
+
+  mainWindow.webContents.send('pomodoro', pomodoroInfo);
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even

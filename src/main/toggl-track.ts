@@ -16,49 +16,25 @@ export default class TogglTrack {
 
   async startSession(apiKey: string) {
     // https://developers.track.toggl.com/docs/authentication
-    // curl -u apiKey:api_token -X POST https://api.track.toggl.com/api/v9/me/sessions
-    const url = '/me/sessions';
-    const auth = {
-      username: apiKey,
-      password: 'api_token',
-    };
-
-    return this.req
-      .post(url, {}, { auth })
-      .then((res) => {
-        // Set cookie
-        const resCookies = res.headers['set-cookie'];
-        if (!resCookies) {
-          throw new Error('Toggl Track API did not return a cookie');
-        }
-        this.req.defaults.headers.Cookie = resCookies;
-        this.authenticated = true;
-        return true;
-      })
-      .catch((e) => {
-        console.error(e);
-        this.error = e;
-        return false;
-      });
-  }
-
-  async destroySession() {
-    if (!this.authenticated) {
+    try {
+      // Configure axios instance with Basic Auth
+      this.req.defaults.auth = {
+        username: apiKey,
+        password: 'api_token',
+      };
+      // TODO: Check /me, return error in UI if not authenticated
+      this.authenticated = true;
+      return true;
+    } catch (e) {
+      console.error(e);
+      this.error = e as string;
       return false;
     }
+  }
 
-    // https://developers.track.toggl.com/docs/authentication#destroy-the-session
-    // curl --cookie __Host-timer-session=session_cookie -X DELETE https://api.track.toggl.com/api/v9/me/sessions
-    const url = '/me/sessions';
-    return this.req
-      .delete(url)
-      .then(() => {
-        this.authenticated = false;
-        return true;
-      })
-      .catch(() => {
-        throw new Error('Failed to destroy Toggl Track session');
-      });
+  static async destroySession() {
+    // No need to destroy session since we're using Basic Auth
+    return true;
   }
 
   async getCurrentTimeEntry() {
